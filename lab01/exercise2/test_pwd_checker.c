@@ -29,7 +29,7 @@ int main() {
 
     const char *test4_first = "Wei";
     const char *test4_last = "Zhang";
-    const char *test4_pwd = "pjkdihn!o901";
+    const char *test4_pwd = "pJkdihn!o901";
     bool test4 = check_password(test4_first, test4_last, test4_pwd);
     assert(!test4);
 
