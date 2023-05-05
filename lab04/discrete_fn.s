@@ -77,7 +77,10 @@ main:
 # Think: why might having a1 be useful?
 f:
     # YOUR CODE GOES HERE!
-
+    addi a2, a0, 3      #add 3 in a0 to get current value address
+    slli t0, a2, 2      #Byte addressable
+    add t1, a1, t0      # a1 is output address + address we need to jump to current value
+    lw a0, 0(t1)        #return the value in return argument register
     jr ra               # Always remember to jr ra after your function!
 
 print_int:

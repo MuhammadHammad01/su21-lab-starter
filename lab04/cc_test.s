@@ -1,4 +1,5 @@
-.globl simple_fn naive_pow inc_arr
+# helper_fn
+.globl simple_fn naive_pow inc_arr helper_fn
 
 .data
 failure_message: .asciiz "Test failed for some reason.\n"
@@ -55,6 +56,8 @@ main:
 # FIXME Fix the reported error in this function (you can delete lines
 # if necessary, as long as the function still returns 1 in a0).
 simple_fn:
+    # Set t0 before using it
+    li t0, 0
     mv a0, t0
     li a0, 1
     ret
@@ -76,6 +79,9 @@ simple_fn:
 # missing. Another hint: what does the "s" in "s0" stand for?
 naive_pow:
     # BEGIN PROLOGUE
+    # Save register s0 on stack
+    addi sp, sp, -4
+    sw s0, 0(sp)
     # END PROLOGUE
     li s0, 1
 naive_pow_loop:
@@ -86,6 +92,9 @@ naive_pow_loop:
 naive_pow_end:
     mv a0, s0
     # BEGIN EPILOGUE
+    # Restore value of s0 from stack
+    lw s0, 0(sp)
+    addi sp, sp, 4
     # END EPILOGUE
     ret
 
@@ -100,8 +109,12 @@ inc_arr:
     #
     # FIXME What other registers need to be saved?
     #
-    addi sp, sp, -4
+    # Save register s0 on th estack
+    addi sp, sp, -16
     sw ra, 0(sp)
+    sw s0, 4(sp)
+    sw s1, 8(sp)
+    sw s2, 12(sp)
     # END PROLOGUE
     mv s0, a0 # Copy start of array to saved register
     mv s1, a1 # Copy length of array to saved register
@@ -110,6 +123,7 @@ inc_arr_loop:
     beq t0, s1, inc_arr_end
     slli t1, t0, 2 # Convert array index to byte offset
     add a0, s0, t1 # Add offset to start of array
+    mv s2, t0 # Change
     # Prepare to call helper_fn
     #
     # FIXME Add code to preserve the value in t0 before we call helper_fn
@@ -118,12 +132,17 @@ inc_arr_loop:
     #
     jal helper_fn
     # Finished call for helper_fn
+    mv t0, s2 # Change
     addi t0, t0, 1 # Increment counter
     j inc_arr_loop
 inc_arr_end:
     # BEGIN EPILOGUE
+    # Restore value of s0 from stack
+    lw s2, 12(sp)
+    lw s1, 8(sp)
+    lw s0, 4(sp)
     lw ra, 0(sp)
-    addi sp, sp, 4
+    addi sp, sp, 16 # Change
     # END EPILOGUE
     ret
 
@@ -137,11 +156,15 @@ inc_arr_end:
 # as appropriate.
 helper_fn:
     # BEGIN PROLOGUE
+    addi sp, sp, -4
+    sw s0, 0(sp)
     # END PROLOGUE
     lw t1, 0(a0)
     addi s0, t1, 1
     sw s0, 0(a0)
     # BEGIN EPILOGUE
+    lw s0, 0(sp)
+    addi sp, sp, 4
     # END EPILOGUE
     ret
 
